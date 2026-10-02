@@ -1,4 +1,4 @@
-const CACHE_NAME = 'basewire-v1';
+const CACHE_NAME = 'stripee-v1';
 const ASSETS = [
   './',
   './index.html',

@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BaseWire</title>
+<title>Stripee</title>
 <meta name="description" content="Send money, track balances, and manage transfers.">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7A5CFA">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BaseWire">
+<meta name="apple-mobile-web-app-title" content="Stripee">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -175,6 +175,8 @@
   }
   .currency-select:hover{border-color:var(--wire);}
   .hero-actions{display:flex; gap:10px; position:relative;}
+  .hero-subrow{display:flex; align-items:center; gap:10px; margin-top:12px;}
+  .hero-subbalance{font-size:12.5px; color:var(--muted); font-weight:600;}
 
   .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;}
   .stat-card{
@@ -206,6 +208,7 @@
   .tx-row:last-child{border-bottom:none;}
   .tx-row.in{border-left-color:var(--settle);}
   .tx-row.out{border-left-color:var(--hold);}
+  .tx-row.failed{border-left-color:var(--hold);}
   .tx-main{flex:1; min-width:0;}
   .tx-desc{font-size:13.5px; font-weight:600;}
   .tx-meta{font-size:12px; color:var(--muted); margin-top:2px;}
@@ -217,6 +220,7 @@
   }
   .tx-status.settled{background:var(--settle-dim); color:var(--settle);}
   .tx-status.pending{background:#FCF3DA; color:#8A6100;}
+  .tx-status.failed{background:var(--hold-dim); color:var(--hold);}
 
   .empty{padding:48px 22px; text-align:center; color:var(--muted); font-size:13.5px;}
 
@@ -435,7 +439,7 @@ function fmt(amount, ccy){
   return s + Number(amount).toLocaleString(undefined,{minimumFractionDigits:dec, maximumFractionDigits:dec});
 }
 function toUSD(amount, ccy){ return amount * CURRENCIES[ccy].rateToUSD; }
-function refId(){ return 'BW-' + Math.random().toString(36).slice(2,6).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
+function refId(){ return 'ST-' + Math.random().toString(36).slice(2,6).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
 function todayStr(offsetDays){
   const d = new Date(); d.setDate(d.getDate()+offsetDays);
   return d.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'});
@@ -453,15 +457,20 @@ const state = {
     {id:'c3', name:'Priya Chandran', email:'priya@studiopc.dev'},
     {id:'c4', name:'Tomas Reyes', email:'tomas.reyes@gmail.com'},
     {id:'c5', name:'Kelechi Nnamdi', email:'k.nnamdi@brightloop.io'},
+    {id:'c6', name:'Jamal Gilani', email:'jamal_gilani@hotmail.com'},
   ],
   transactions: [
     {id:refId(), type:'in', desc:'Deposit from Chase •••4471', amount:5000, ccy:'USD', date:todayStr(0), status:'settled'},
-    {id:refId(), type:'out', desc:'Transfer to Marta Oyelaran', amount:1250, ccy:'USD', date:todayStr(-1), status:'settled'},
+    {id:refId(), type:'in', desc:'Transfer from Marta Oyelaran', amount:1250, ccy:'USD', date:todayStr(-1), status:'settled'},
+    {id:refId(), type:'in', desc:'Refund — failed transfer reversal', amount:1200, ccy:'EUR', date:todayStr(-2), status:'settled', note:'Returned to your account'},
     {id:refId(), type:'in', desc:'Deposit from Wise transfer', amount:800, ccy:'EUR', date:todayStr(-2), status:'settled'},
-    {id:refId(), type:'out', desc:'Transfer to Devin Ashworth', amount:340, ccy:'GBP', date:todayStr(-3), status:'pending'},
-    {id:refId(), type:'out', desc:'Transfer to Tomas Reyes', amount:120000, ccy:'JPY', date:todayStr(-4), status:'settled'},
+    {id:refId(), type:'in', desc:'Transfer from Devin Ashworth', amount:340, ccy:'GBP', date:todayStr(-3), status:'pending'},
+    {id:refId(), type:'in', desc:'Transfer from Tomas Reyes', amount:500, ccy:'USD', date:todayStr(-4), status:'settled'},
+    {id:refId(), type:'in', desc:'Transfer from Kelechi Nnamdi', amount:200, ccy:'USD', date:todayStr(-5), status:'settled'},
     {id:refId(), type:'in', desc:'Deposit from RBC •••9021', amount:2200, ccy:'CAD', date:todayStr(-6), status:'settled'},
-    {id:refId(), type:'out', desc:'Transfer to Priya Chandran', amount:610, ccy:'USD', date:todayStr(-8), status:'settled'},
+    {id:refId(), type:'in', desc:'E-transfer received', amount:100, ccy:'USD', date:todayStr(-6), status:'settled'},
+    {id:refId(), type:'out', desc:'Transfer to Jamal Gilani (jamal_gilani@hotmail.com)', amount:1200, ccy:'EUR', date:todayStr(-7), status:'failed', note:"Bank couldn't deposit EUR — try a different currency"},
+    {id:refId(), type:'in', desc:'Transfer from Priya Chandran', amount:610, ccy:'USD', date:todayStr(-8), status:'settled'},
   ],
   users: [
     {id:'u1', name:'Marta Oyelaran', email:'marta@northfield.co', status:'active', balUSD:14200},
@@ -471,7 +480,7 @@ const state = {
     {id:'u5', name:'Kelechi Nnamdi', email:'k.nnamdi@brightloop.io', status:'active', balUSD:7040},
   ],
   auditLog: [
-    {id:refId(), actor:'S. Gilani', action:'Reviewed pending transfer BW-3F2A-91KD', date:todayStr(-1)},
+    {id:refId(), actor:'S. Gilani', action:'Reviewed pending transfer ST-3F2A-91KD', date:todayStr(-1)},
     {id:refId(), actor:'S. Gilani', action:'Froze account — Priya Chandran (studiopc.dev)', date:todayStr(-5)},
   ],
 };
@@ -514,9 +523,9 @@ function renderShell(){
     <div class="rail">
       <div class="account-row">
         <div class="account-avatar">S</div>
-        <div class="account-name">Shahmeran</div>
+        <div class="account-name">Shahjahan</div>
       </div>
-      <div class="brand">${ICONS.logo}<span class="brand-name">BaseWire</span></div>
+      <div class="brand">${ICONS.logo}<span class="brand-name">Stripee</span></div>
       <nav>
         ${accountNav.map(n=>`
           <button class="nav-item ${state.view===n.id?'active':''}" onclick="navTo('${n.id}')">
@@ -527,7 +536,7 @@ function renderShell(){
     </div>
     <main>
       <div class="topbar">
-        <div class="topbar-brand-row">${ICONS.logo}<span class="topbar-brand-name">BaseWire</span></div>
+        <div class="topbar-brand-row">${ICONS.logo}<span class="topbar-brand-name">Stripee</span></div>
         <button class="icon-btn" onclick="openQuickActions()" aria-label="Quick actions">${ICONS.plus}</button>
       </div>
       <div class="view" id="viewRoot"></div>
@@ -540,7 +549,7 @@ function openQuickActions(){
   openModal(`
     <div class="qa-topbar">
       <div class="topbar-icon">${ICONS.logo}</div>
-      <div class="qa-topbar-name">BaseWire</div>
+      <div class="qa-topbar-name">Stripee</div>
       <button class="qa-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="qa-list">
@@ -592,6 +601,7 @@ function saveQuickContact(){
 function renderDashboard(){
   const ccy = state.activeCurrency;
   const bal = state.balances[ccy];
+  const totalUSD = Object.keys(CURRENCIES).reduce((s,c)=>s+toUSD(state.balances[c]||0, c), 0);
   const recent = state.transactions.slice(0,5);
   const inTotal = state.transactions.filter(t=>t.type==='in').reduce((s,t)=>s+toUSD(t.amount,t.ccy),0);
   const outTotal = state.transactions.filter(t=>t.type==='out').reduce((s,t)=>s+toUSD(t.amount,t.ccy),0);
@@ -599,12 +609,15 @@ function renderDashboard(){
   return `
     <div class="hero">
       <div>
-        <div class="hero-label">Available balance</div>
+        <div class="hero-label">Total balance</div>
         <div class="hero-amount-row">
-          <div class="hero-amount">${fmt(bal, ccy)}</div>
+          <div class="hero-amount">${fmt(totalUSD,'USD')}</div>
+        </div>
+        <div class="hero-subrow">
           <select class="currency-select" onchange="state.activeCurrency=this.value; render();">
             ${Object.keys(CURRENCIES).map(c=>`<option value="${c}" ${c===ccy?'selected':''}>${c}</option>`).join('')}
           </select>
+          <span class="hero-subbalance">${fmt(bal, ccy)} available</span>
         </div>
       </div>
       <div class="hero-actions">
@@ -741,14 +754,15 @@ function renderActivityChart(){
 
 function txRow(t){
   const sign = t.type==='in' ? '+' : '−';
+  const statusLabel = {settled:'Settled', pending:'Pending', failed:'Failed'}[t.status] || 'Pending';
   return `
-    <div class="tx-row ${t.type}">
+    <div class="tx-row ${t.status==='failed' ? 'failed' : t.type}">
       <div class="tx-main">
         <div class="tx-desc">${t.desc}</div>
-        <div class="tx-meta">${t.date} · ${t.id}</div>
+        <div class="tx-meta">${t.date} · ${t.id}${t.note ? ' · '+t.note : ''}</div>
       </div>
-      <div class="tx-amount ${t.type}">${sign}${fmt(t.amount, t.ccy)}</div>
-      <div class="tx-status ${t.status}">${t.status === 'settled' ? 'Settled' : 'Pending'}</div>
+      <div class="tx-amount ${t.status==='failed' ? 'out' : t.type}">${sign}${fmt(t.amount, t.ccy)}</div>
+      <div class="tx-status ${t.status}">${statusLabel}</div>
     </div>`;
 }
 
@@ -773,7 +787,7 @@ function renderSettings(){
 function renderSettingsGeneral(){
   return `
     <div class="panel" style="padding:26px; max-width:520px;">
-      <div class="field"><label>Name</label><input value="Shahmeran" readonly></div>
+      <div class="field"><label>Name</label><input value="Shahjahan" readonly></div>
       <div class="field"><label>Email</label><input value="gilani45@gmail.com" readonly></div>
       <div class="field"><label>Default currency</label>
         <select onchange="state.activeCurrency=this.value; render();">
@@ -818,8 +832,8 @@ function renderSettingsReports(){
               <td>${t.desc}</td>
               <td>${t.date}</td>
               <td>${t.ccy}</td>
-              <td style="font-weight:600; color:${t.type==='in'?'var(--settle)':'var(--ink)'}">${t.type==='in'?'+':'−'}${fmt(t.amount,t.ccy)}</td>
-              <td><span class="tx-status ${t.status}">${t.status==='settled'?'Settled':'Pending'}</span></td>
+              <td style="font-weight:600; color:${t.status==='failed'?'var(--hold)':(t.type==='in'?'var(--settle)':'var(--ink)')}">${t.type==='in'?'+':'−'}${fmt(t.amount,t.ccy)}</td>
+              <td><span class="tx-status ${t.status}">${{settled:'Settled',pending:'Pending',failed:'Failed'}[t.status] || 'Pending'}</span></td>
             </tr>`).join('') || `<tr><td colspan="6" class="empty">No transactions match these filters.</td></tr>`}
         </tbody>
       </table>
@@ -916,7 +930,7 @@ function renderAdminAdjust(){
         </div>
         <div class="field full">
           <label>Reason (internal note)</label>
-          <input id="adjReason" placeholder="e.g. Refund for failed transfer BW-9921">
+          <input id="adjReason" placeholder="e.g. Refund for failed transfer ST-9921">
         </div>
         <div class="field full">
           <button class="btn btn-primary" onclick="submitAdjustment()">Submit adjustment</button>
@@ -1015,12 +1029,13 @@ function renderSendMoneyModal(){
         <label>Amount to send</label>
         <div class="amount-input">
           <span>${CURRENCIES[flow.ccy].symbol}</span>
-          <input type="number" min="0" step="0.01" placeholder="0.00" value="${flow.amount}" oninput="flow.amount=this.value">
+          <input id="sendAmountInput" type="number" min="0" step="0.01" placeholder="0.00" value="${flow.amount}" oninput="flow.amount=this.value; updateSendAmountValidity();">
           <select class="currency-select" style="margin-left:8px;" onchange="flow.ccy=this.value; renderSendMoneyModal();">
             ${Object.keys(CURRENCIES).map(c=>`<option value="${c}" ${c===flow.ccy?'selected':''}>${c}</option>`).join('')}
           </select>
         </div>
         <div style="font-size:12px;color:var(--muted);margin-top:8px;">Balance available: ${fmt(state.balances[flow.ccy]||0, flow.ccy)}</div>
+        <div id="sendAmountWarning" style="font-size:12px;color:var(--hold);margin-top:8px; display:${flow.amount>(state.balances[flow.ccy]||0)?'block':'none'};">Amount exceeds your ${flow.ccy} balance.</div>
       </div>
     `;
   } else if(s===3){
@@ -1029,23 +1044,23 @@ function renderSendMoneyModal(){
       <div class="review-row"><span class="k">Recipient</span><span class="v">${c.name}</span></div>
       <div class="review-row"><span class="k">Amount</span><span class="v">${fmt(flow.amount||0, flow.ccy)}</span></div>
       <div class="review-row"><span class="k">Fee</span><span class="v">${fmt(0,flow.ccy)}</span></div>
-      <div class="review-row"><span class="k">Arrives</span><span class="v">Instantly</span></div>
+      <div class="review-row"><span class="k">Arrives</span><span class="v">1–2 business days</span></div>
     `;
   } else if(s===4){
     body = `
       <div class="spinner"></div>
       <div class="processing-title">Your money transfer is being processed</div>
-      <div class="processing-sub">Hang tight — this only takes a moment.</div>
+      <div class="processing-sub">Hang tight — this only takes a moment. Funds typically arrive in 1–2 business days.</div>
     `;
   } else if(s===5){
     const c = state.contacts.find(x=>x.id===flow.contactId);
     body = `
       <div class="confirm-icon">${ICONS.check}</div>
       <div class="confirm-title">Money sent</div>
-      <div class="confirm-sub">${fmt(flow.amount,flow.ccy)} is on its way to ${c.name}.</div>
+      <div class="confirm-sub">${fmt(flow.amount,flow.ccy)} is on its way to ${c.name} — arrives in 1–2 business days.</div>
       <div class="review-row"><span class="k">Reference</span><span class="v mono">${flow.ref}</span></div>
       <div class="review-row"><span class="k">Date</span><span class="v">${todayStr(0)}</span></div>
-      <div class="review-row"><span class="k">Status</span><span class="v">Settled</span></div>
+      <div class="review-row"><span class="k">Status</span><span class="v">Pending</span></div>
     `;
   }
 
@@ -1062,12 +1077,20 @@ function renderSendMoneyModal(){
     <div class="modal-body">${body}</div>
     <div class="modal-foot">
       ${s===1 ? `<button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="sendMoneyNext()" ${!canContinue1?'disabled':''}>Continue</button>` : ''}
-      ${s===2 ? `<button class="btn btn-secondary" onclick="flow.step=1; renderSendMoneyModal();">Back</button><button class="btn btn-primary" onclick="sendMoneyNext()" ${!canContinue2?'disabled':''}>Continue</button>` : ''}
+      ${s===2 ? `<button class="btn btn-secondary" onclick="flow.step=1; renderSendMoneyModal();">Back</button><button id="sendContinueBtn" class="btn btn-primary" onclick="sendMoneyNext()" ${!canContinue2?'disabled':''}>Continue</button>` : ''}
       ${s===3 ? `<button class="btn btn-secondary" onclick="flow.step=2; renderSendMoneyModal();">Back</button><button class="btn btn-primary" onclick="beginSendMoney()">Confirm and send</button>` : ''}
       ${s===5 ? `<button class="btn btn-primary" onclick="closeModal()">Done</button>` : ''}
     </div>
-    ${s===2 && flow.amount>bal ? `<div style="padding:0 22px 18px;font-size:12px;color:var(--hold);">Amount exceeds your ${flow.ccy} balance.</div>` : ''}
   `);
+}
+function updateSendAmountValidity(){
+  const bal = state.balances[flow.ccy]||0;
+  const amt = parseFloat(flow.amount);
+  const ok = amt>0 && amt<=bal;
+  const btn = document.getElementById('sendContinueBtn');
+  if(btn) btn.disabled = !ok;
+  const warn = document.getElementById('sendAmountWarning');
+  if(warn) warn.style.display = (flow.amount>bal) ? 'block' : 'none';
 }
 function sendMoneyNext(){ flow.step++; renderSendMoneyModal(); }
 function beginSendMoney(){
@@ -1080,7 +1103,7 @@ function finalizeSendMoney(){
   const amt = parseFloat(flow.amount);
   state.balances[flow.ccy] -= amt;
   flow.ref = refId();
-  state.transactions.unshift({id:flow.ref, type:'out', desc:`Transfer to ${c.name}`, amount:amt, ccy:flow.ccy, date:todayStr(0), status:'settled'});
+  state.transactions.unshift({id:flow.ref, type:'out', desc:`Transfer to ${c.name}`, amount:amt, ccy:flow.ccy, date:todayStr(0), status:'pending', note:'Arrives in 1–2 business days'});
   flow.step = 5;
   renderSendMoneyModal();
   render();

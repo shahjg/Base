@@ -1,6 +1,6 @@
 {
-  "name": "BaseWire",
-  "short_name": "BaseWire",
+  "name": "Stripee",
+  "short_name": "Stripee",
   "description": "Send money, track balances, and manage transfers.",
   "start_url": ".",
   "scope": ".",
