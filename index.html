@@ -460,7 +460,7 @@ const state = {
     {id:'c6', name:'Jamal Gilani', email:'jamal_gilani@hotmail.com'},
   ],
   transactions: [
-    {id:refId(), type:'in', desc:'Deposit from Chase •••4471', amount:5000, ccy:'USD', date:todayStr(0), status:'settled'},
+    {id:refId(), type:'out', desc:'Transfer to Jamal Gilani (jamal_gilani@hotmail.com)', amount:1200, ccy:'EUR', date:todayStr(0), status:'failed', note:"Bank couldn't deposit EUR — try a different currency"},
     {id:refId(), type:'in', desc:'Transfer from Marta Oyelaran', amount:1250, ccy:'USD', date:todayStr(-1), status:'settled'},
     {id:refId(), type:'in', desc:'Refund — failed transfer reversal', amount:1200, ccy:'EUR', date:todayStr(-2), status:'settled', note:'Returned to your account'},
     {id:refId(), type:'in', desc:'Deposit from Wise transfer', amount:800, ccy:'EUR', date:todayStr(-2), status:'settled'},
@@ -469,8 +469,9 @@ const state = {
     {id:refId(), type:'in', desc:'Transfer from Kelechi Nnamdi', amount:200, ccy:'USD', date:todayStr(-5), status:'settled'},
     {id:refId(), type:'in', desc:'Deposit from RBC •••9021', amount:2200, ccy:'CAD', date:todayStr(-6), status:'settled'},
     {id:refId(), type:'in', desc:'E-transfer received', amount:100, ccy:'USD', date:todayStr(-6), status:'settled'},
-    {id:refId(), type:'out', desc:'Transfer to Jamal Gilani (jamal_gilani@hotmail.com)', amount:1200, ccy:'EUR', date:todayStr(-7), status:'failed', note:"Bank couldn't deposit EUR — try a different currency"},
     {id:refId(), type:'in', desc:'Transfer from Priya Chandran', amount:610, ccy:'USD', date:todayStr(-8), status:'settled'},
+    {id:refId(), type:'in', desc:'Transfer from Marta Oyelaran', amount:150, ccy:'USD', date:todayStr(-9), status:'settled'},
+    {id:refId(), type:'in', desc:'E-transfer received', amount:50, ccy:'USD', date:todayStr(-11), status:'settled'},
   ],
   users: [
     {id:'u1', name:'Marta Oyelaran', email:'marta@northfield.co', status:'active', balUSD:14200},
